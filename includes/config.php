@@ -13,6 +13,8 @@ try {
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     // Set default fetch mode
     $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+    // Set character set
+    $db->exec("SET NAMES utf8");
 } catch (PDOException $e) {
     // Display error message
     echo "Error: " . $e->getMessage();
