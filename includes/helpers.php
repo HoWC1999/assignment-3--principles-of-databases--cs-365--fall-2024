@@ -95,6 +95,7 @@ function updateEntry($searchColumn, $searchValue, $updateColumn, $updateValue)
         // Ensure the encryption mode is set correctly
         $updateValue = encryptPassword($updateValue);
     }
+
     // Construct the LIKE pattern for SQL
     $likeSearchValue = '%' . $searchValue . '%';
 
@@ -117,7 +118,7 @@ function updateEntry($searchColumn, $searchValue, $updateColumn, $updateValue)
         ");
 
         // Bind the parameters using bindValue()
-        $stmt->bindValue(':updateValue', $updateValue, PDO::PARAM_STR);
+        $stmt->bindParam(':updateValue', $updateValue, PDO::PARAM_STR);
         $stmt->bindValue(':searchValue', $likeSearchValue, PDO::PARAM_STR);
 
         // Execute the statement
