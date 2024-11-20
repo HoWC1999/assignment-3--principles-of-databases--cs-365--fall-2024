@@ -1,0 +1,236 @@
+/* General Styles */
+body {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-weight: 200;
+  padding: 24px;
+  margin: 0 auto;
+  width: 960px;
+  background-color: #f9f9f9; /* Added a light background for contrast */
+}
+
+hr {
+  border-style: groove;
+  margin: 32px 0;
+}
+
+section {
+  margin: 24px 0;
+}
+
+section,
+pre {
+  padding: 20px;
+  border: 1px solid rgb(220, 220, 220);
+  border-radius: 5px;
+  background-color: #fff; /* Ensure sections have a white background */
+}
+
+section h2 {
+  margin: 8px 0 32px;
+  text-align: center;
+}
+
+pre,
+code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 500;
+  color: rgb(20, 20, 20);
+}
+
+h1 {
+  text-align: center;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 500;
+}
+
+pre {
+  font-family: monospace;
+}
+
+i,
+em {
+  font-style: italic;
+}
+
+.database-query,
+.database-result {
+  padding: 20px; /* Increased padding for better spacing */
+  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+.database-query {
+  background-color: #e6ffe6; /* Light green background for queries */
+}
+
+.database-result {
+  background-color: #ffe6e6; /* Light red background for results */
+}
+
+/* Table Styles */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background-color: #fff;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+table th,
+table td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: left;
+}
+
+table th {
+  background-color: #f2f2f2;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+table tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* Responsive Table */
+@media (max-width: 768px) {
+  table,
+  table thead,
+  table tbody,
+  table th,
+  table td,
+  table tr {
+    display: block;
+  }
+
+  table thead {
+    display: none;
+  }
+
+  table tr {
+    margin-bottom: 15px;
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+
+  table td {
+    border: none;
+    position: relative;
+    padding-left: 50%;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+  }
+
+  table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 15px;
+    width: calc(50% - 30px);
+    padding-right: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 12px;
+    color: #7f8c8d;
+  }
+
+  table tbody tr:last-child td {
+    border-bottom: none;
+  }
+}
+
+/* Form Styles */
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+form label {
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+form input[type="text"],
+form input[type="email"],
+form input[type="password"],
+form select,
+form textarea {
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+form textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Button Styles */
+button,
+a.button {
+  display: inline-block;
+  background-color: #007bff;
+  color: #fff;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  text-decoration: none;
+  text-align: center;
+}
+
+button:hover,
+a.button:hover {
+  background-color: #0056b3;
+}
+
+/* Message Styles */
+.message {
+  padding: 15px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.message.success {
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+  color: #155724;
+}
+
+.message.error {
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+  color: #721c24;
+}
+
+.message.info {
+  background-color: #d1ecf1;
+  border-color: #bee5eb;
+  color: #0c5460;
+}
+
+/* Footer Styles */
+footer {
+  text-align: center;
+  padding: 15px;
+  background-color: #2c3e50;
+  color: #ecf0f1;
+  margin-top: 40px;
+  border-radius: 5px;
+}
