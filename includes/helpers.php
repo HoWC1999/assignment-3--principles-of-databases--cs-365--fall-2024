@@ -99,11 +99,6 @@ function updateEntry($searchColumn, $searchValue, $updateColumn, $updateValue)
     // Construct the LIKE pattern for SQL
     $likeSearchValue = '%' . $searchValue . '%';
 
-    // Additional Validation for Specific Columns (e.g., URL)
-    if ($updateColumn === 'websites.website_url' && !filter_var($updateValue, FILTER_VALIDATE_URL)) {
-        throw new Exception("Invalid URL format for website_url.");
-    }
-
     try {
         // Begin transaction
         $db->beginTransaction();
@@ -118,7 +113,7 @@ function updateEntry($searchColumn, $searchValue, $updateColumn, $updateValue)
         ");
 
         // Bind the parameters using bindValue()
-        $stmt->bindParam(':updateValue', $updateValue, PDO::PARAM_STR);
+        $stmt->bindValue(':updateValue', $updateValue, PDO::PARAM_STR);
         $stmt->bindValue(':searchValue', $likeSearchValue, PDO::PARAM_STR);
 
         // Execute the statement

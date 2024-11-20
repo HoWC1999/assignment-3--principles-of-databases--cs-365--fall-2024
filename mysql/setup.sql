@@ -1,7 +1,7 @@
 -- mysql/setup.sql
 
 -- Create the 'student_passwords' database
-CREATE DATABASE IF NOT EXISTS student_passwords;
+CREATE DATABASE IF NOT EXISTS student_passwords DEFAULT CHARACTER SET utf8mb4;
 USE student_passwords;
 
 -- Create the 'passwords_user' user without a password
