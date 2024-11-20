@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS users (
   user_id INT AUTO_INCREMENT PRIMARY KEY,
   first_name VARCHAR(64) NOT NULL,
   last_name VARCHAR(64) NOT NULL,
-  email VARCHAR(128) NOT NULL UNIQUE
+  email VARCHAR(512) NOT NULL
 );
 
 -- Create the 'websites' table

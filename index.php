@@ -216,29 +216,38 @@ if (isset($_REQUEST['action'])) {
                     case 'update':
                         ?>
                         <h2>Update an Entry</h2>
-                        <form action="index.php" method="POST">
-                            <input type="hidden" name="action" value="update">
-                            <label for="search_column">Search Column:</label>
+                        <form action="index.php?action=update" method="POST">
+                            <label for="search_column">Search By:</label>
                             <select name="search_column" id="search_column" required>
-                                <option value="username">Username</option>
-                                <option value="website_name">Website Name</option>
-                                <option value="website_url">Website URL</option>
-                                <option value="comment">Comment</option>
+                                <option value="">--Select Column--</option>
+                                <option value="registers_for.username">Username</option>
+                                <option value="users.email">Email</option>
+                                <option value="websites.website_name">Website Name</option>
+                                <option value="websites.website_url">Website URL</option>
+                                <!-- Add more options here if needed -->
                             </select>
-                            <input type="text" name="search_value" placeholder="Search Value" required>
+
+                            <label for="search_value">Search Value:</label>
+                            <input type="text" name="search_value" id="search_value" placeholder="Enter value to search" required>
+
                             <label for="update_column">Update Column:</label>
                             <select name="update_column" id="update_column" required>
-                                <option value="first_name">First Name</option>
-                                <option value="last_name">Last Name</option>
-                                <option value="email">Email</option>
-                                <option value="username">Username</option>
-                                <option value="password">Password</option>
-                                <option value="website_name">Website Name</option>
-                                <option value="website_url">Website URL</option>
-                                <option value="comment">Comment</option>
+                                <option value="">--Select Column--</option>
+                                <option value="registers_for.comment">Comment</option>
+                                <option value="registers_for.username">Username</option>
+                                <option value="registers_for.password">Password</option>
+                                <option value="users.first_name">First Name</option>
+                                <option value="users.last_name">Last Name</option>
+                                <option value="users.email">Email</option>
+                                <option value="websites.website_name">Website Name</option>
+                                <option value="websites.website_url">Website URL</option>
+                                <!-- Add more options here if needed -->
                             </select>
-                            <input type="text" name="update_value" placeholder="Update Value" required>
-                            <button type="submit">Update</button>
+
+                            <label for="update_value">Update Value:</label>
+                            <input type="text" name="update_value" id="update_value" placeholder="Enter new value" required>
+
+                            <button type="submit" class="button">Update Entry</button>
                         </form>
                         <?php
                         break;

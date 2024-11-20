@@ -1,6 +1,7 @@
 <?php
 
 function searchEntries($query)
+// Function to search for entries based on a query
 {
     global $db;
     // Ensure the encryption mode is set correctly
@@ -8,6 +9,7 @@ function searchEntries($query)
     $likeQuery = '%' . $query . '%';
 
     try {
+        // Prepare the SELECT statement with aliases
         $stmt = $db->prepare("
             SELECT
                 registers_for.username,
@@ -51,33 +53,53 @@ function updateEntry($searchColumn, $searchValue, $updateColumn, $updateValue)
 
     // Define allowed columns with proper table aliases
     $columnMapping = [
-        'username'         => 'rf.username',
-        'email'            => 'u.email',
-        'website_name'     => 'w.website_name',
-        'website_url'      => 'w.website_url',
-        'comment'          => 'rf.comment',
-        'password'         => 'rf.password',
-        'first_name'       => 'u.first_name',
-        'last_name'        => 'u.last_name'
+        // Registers_For Table Columns
+        'registers_for.username' => 'rf.username',
+        'registers_for.password' => 'rf.password',
+        'registers_for.comment'  => 'rf.comment',
+
+        // Users Table Columns
+        'users.first_name' => 'u.first_name',
+        'users.last_name'  => 'u.last_name',
+        'users.email'      => 'u.email',
+
+        // Websites Table Columns
+        'websites.website_name' => 'w.website_name',
+        'websites.website_url'  => 'w.website_url',
+
+        // Add any additional columns here as needed
     ];
+
+    // Log received parameters for debugging
+    error_log("Update Request Received:");
+    error_log("Search Column: " . $searchColumn);
+    error_log("Search Value: " . $searchValue);
+    error_log("Update Column: " . $updateColumn);
+    error_log("Update Value: " . $updateValue);
 
     // Validate and map the search column
     if (!array_key_exists($searchColumn, $columnMapping)) {
+        error_log("Invalid search column name provided: " . $searchColumn);
         throw new Exception("Invalid search column name.");
     }
     $qualifiedSearchColumn = $columnMapping[$searchColumn];
 
     // Validate and map the update column
     if (!array_key_exists($updateColumn, $columnMapping)) {
+        error_log("Invalid update column name provided: " . $updateColumn);
         throw new Exception("Invalid update column name.");
     }
     $qualifiedUpdateColumn = $columnMapping[$updateColumn];
 
+    if ($updateColumn === 'registers_for.password') {
+        // Ensure the encryption mode is set correctly
+        $updateValue = encryptPassword($updateValue);
+    }
     // Construct the LIKE pattern for SQL
     $likeSearchValue = '%' . $searchValue . '%';
 
-    // Additional Validation for Specific Columns (Optional)
-    if ($updateColumn === 'website_url' && !filter_var($updateValue, FILTER_VALIDATE_URL)) {
+    // Additional Validation for Specific Columns (e.g., URL)
+    if ($updateColumn === 'websites.website_url' && !filter_var($updateValue, FILTER_VALIDATE_URL)) {
         throw new Exception("Invalid URL format for website_url.");
     }
 
@@ -118,12 +140,12 @@ function updateEntry($searchColumn, $searchValue, $updateColumn, $updateValue)
     } catch (PDOException $e) {
         // Rollback the transaction on error
         $db->rollBack();
-        error_log("Update Entry Error: " . $e->getMessage());
+        error_log("Update Entry Error (PDOException): " . $e->getMessage());
         return false;
     } catch (Exception $e) {
         // Handle other exceptions
         $db->rollBack();
-        error_log("Update Entry Error: " . $e->getMessage());
+        error_log("Update Entry Error (Exception): " . $e->getMessage());
         return false;
     }
 }
@@ -134,6 +156,7 @@ function insertEntry($firstName, $lastName, $email, $websiteName, $websiteUrl, $
     global $db;
 
     try {
+        // Begin transaction
         $db->beginTransaction();
 
         // Insert or get user_id
