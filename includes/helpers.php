@@ -45,33 +45,87 @@ function searchEntries($query)
 }
 
 
-// Function to update an entry
 function updateEntry($searchColumn, $searchValue, $updateColumn, $updateValue)
 {
     global $db;
 
-    // Allowed columns to prevent SQL injection
-    $allowedSearchColumns = ['registers_for.username', 'users.email', 'websites.website_name'];
-    $allowedUpdateColumns = ['registers_for.comment'];
+    // Define allowed columns with proper table aliases
+    $columnMapping = [
+        'username'         => 'rf.username',
+        'email'            => 'u.email',
+        'website_name'     => 'w.website_name',
+        'website_url'      => 'w.website_url',
+        'comment'          => 'rf.comment',
+        'password'         => 'rf.password',
+        'first_name'       => 'u.first_name',
+        'last_name'        => 'u.last_name'
+    ];
 
-    // Validate columns
-    if (!in_array($searchColumn, $allowedSearchColumns) || !in_array($updateColumn, $allowedUpdateColumns)) {
-        throw new Exception("Invalid column name.");
+    // Validate and map the search column
+    if (!array_key_exists($searchColumn, $columnMapping)) {
+        throw new Exception("Invalid search column name.");
     }
+    $qualifiedSearchColumn = $columnMapping[$searchColumn];
 
+    // Validate and map the update column
+    if (!array_key_exists($updateColumn, $columnMapping)) {
+        throw new Exception("Invalid update column name.");
+    }
+    $qualifiedUpdateColumn = $columnMapping[$updateColumn];
+
+    // Construct the LIKE pattern for SQL
     $likeSearchValue = '%' . $searchValue . '%';
 
-    $stmt = $db->prepare("
-        UPDATE registers_for
-        JOIN users ON registers_for.user_id = users.user_id
-        JOIN websites ON registers_for.website_id = websites.website_id
-        SET $updateColumn = :updateValue
-        WHERE $searchColumn LIKE :searchValue
-    ");
-    $stmt->bindParam(':updateValue', $updateValue, PDO::PARAM_STR);
-    $stmt->bindParam(':searchValue', $likeSearchValue, PDO::PARAM_STR);
+    // Additional Validation for Specific Columns (Optional)
+    if ($updateColumn === 'website_url' && !filter_var($updateValue, FILTER_VALIDATE_URL)) {
+        throw new Exception("Invalid URL format for website_url.");
+    }
 
-    return $stmt->execute();
+    try {
+        // Begin transaction
+        $db->beginTransaction();
+
+        // Prepare the UPDATE statement with aliases
+        $stmt = $db->prepare("
+            UPDATE registers_for AS rf
+            JOIN users AS u ON rf.user_id = u.user_id
+            JOIN websites AS w ON rf.website_id = w.website_id
+            SET $qualifiedUpdateColumn = :updateValue
+            WHERE $qualifiedSearchColumn LIKE :searchValue
+        ");
+
+        // Bind the parameters using bindValue()
+        $stmt->bindValue(':updateValue', $updateValue, PDO::PARAM_STR);
+        $stmt->bindValue(':searchValue', $likeSearchValue, PDO::PARAM_STR);
+
+        // Execute the statement
+        $stmt->execute();
+
+        // Get the number of affected rows
+        $affectedRows = $stmt->rowCount();
+
+        // Commit the transaction
+        $db->commit();
+
+        // Log the update activity
+        if ($affectedRows > 0) {
+            error_log("Update Entry Success: {$affectedRows} entry(s) updated. Column '{$updateColumn}' set to '{$updateValue}' where '{$searchColumn}' LIKE '{$likeSearchValue}'.");
+        } else {
+            error_log("Update Entry Info: No entries matched for update based on '{$searchColumn}' LIKE '{$likeSearchValue}'.");
+        }
+
+        return $affectedRows;
+    } catch (PDOException $e) {
+        // Rollback the transaction on error
+        $db->rollBack();
+        error_log("Update Entry Error: " . $e->getMessage());
+        return false;
+    } catch (Exception $e) {
+        // Handle other exceptions
+        $db->rollBack();
+        error_log("Update Entry Error: " . $e->getMessage());
+        return false;
+    }
 }
 
 // Function to insert a new entry
@@ -158,8 +212,8 @@ function encryptPassword($password)
         ) AS encrypted_password
     ");
     $stmt->bindParam(':password', $password, PDO::PARAM_STR);
-    $stmt->bindParam(':encryption_key', ENCRYPTION_KEY, PDO::PARAM_STR);
-    $stmt->bindParam(':encryption_iv', ENCRYPTION_IV, PDO::PARAM_STR);
+    $stmt->bindValue(':encryption_key', ENCRYPTION_KEY, PDO::PARAM_STR);
+    $stmt->bindValue(':encryption_iv', ENCRYPTION_IV, PDO::PARAM_STR);
     $stmt->execute();
     $row = $stmt->fetch();
     return $row['encrypted_password'];
@@ -177,36 +231,71 @@ function decryptPassword($encryptedPassword)
         ) AS decrypted_password
     ");
     $stmt->bindParam(':encryptedPassword', $encryptedPassword, PDO::PARAM_LOB);
-    $stmt->bindParam(':encryption_key', ENCRYPTION_KEY, PDO::PARAM_STR);
-    $stmt->bindParam(':encryption_iv', ENCRYPTION_IV, PDO::PARAM_STR);
+    $stmt->bindValue(':encryption_key', ENCRYPTION_KEY, PDO::PARAM_STR);
+    $stmt->bindValue(':encryption_iv', ENCRYPTION_IV, PDO::PARAM_STR);
     $stmt->execute();
     $row = $stmt->fetch();
     return $row['decrypted_password'];
 }
 
-// Function to delete an entry
 function deleteEntry($deleteColumn, $deleteValue)
 {
     global $db;
 
-    // Allowed columns to prevent SQL injection
-    $allowedDeleteColumns = ['registers_for.username', 'users.email'];
+    // Define allowed columns with proper table prefixes
+    $columnMapping = [
+        'username'     => 'rf.username',
+        'email'        => 'u.email',
+        'website_name' => 'w.website_name',
+        'website_url'  => 'w.website_url'
+    ];
 
-    // Validate column
-    if (!in_array($deleteColumn, $allowedDeleteColumns)) {
+    // Validate and map the column
+    if (!array_key_exists($deleteColumn, $columnMapping)) {
         throw new Exception("Invalid column name.");
     }
 
+    $qualifiedColumn = $columnMapping[$deleteColumn];
     $likeDeleteValue = '%' . $deleteValue . '%';
 
-    $stmt = $db->prepare("
-        DELETE registers_for
-        FROM registers_for
-        JOIN users ON registers_for.user_id = users.user_id
-        WHERE $deleteColumn LIKE :deleteValue
-    ");
-    $stmt->bindParam(':deleteValue', $likeDeleteValue, PDO::PARAM_STR);
+    try {
+        // Begin transaction
+        $db->beginTransaction();
 
-    return $stmt->execute();
+        // Prepare the DELETE statement with aliases
+        $stmt = $db->prepare("
+            DELETE rf
+            FROM registers_for AS rf
+            JOIN users AS u ON rf.user_id = u.user_id
+            JOIN websites AS w ON rf.website_id = w.website_id
+            WHERE $qualifiedColumn LIKE :deleteValue
+        ");
+
+        // Bind the value using bindValue()
+        $stmt->bindValue(':deleteValue', $likeDeleteValue, PDO::PARAM_STR);
+
+        // Execute the statement
+        $stmt->execute();
+
+        // Get the number of affected rows
+        $affectedRows = $stmt->rowCount();
+
+        // Commit the transaction
+        $db->commit();
+
+        // Log the deletion activity
+        if ($affectedRows > 0) {
+            error_log("Delete Entry Success: {$affectedRows} entry(s) deleted based on {$deleteColumn} LIKE {$likeDeleteValue}");
+        } else {
+            error_log("Delete Entry Info: No entries matched for deletion based on {$deleteColumn} LIKE {$likeDeleteValue}");
+        }
+
+        return $affectedRows;
+    } catch (PDOException $e) {
+        // Rollback the transaction on error
+        $db->rollBack();
+        error_log("Delete Entry Error: " . $e->getMessage());
+        return false;
+    }
 }
 ?>

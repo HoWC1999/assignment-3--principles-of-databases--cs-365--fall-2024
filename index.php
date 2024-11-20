@@ -12,13 +12,11 @@ if (isset($_REQUEST['action'])) {
         case 'search':
             if (isset($_REQUEST['action'])) {
                 $action = $_REQUEST['action'];
-
                 switch ($action) {
                     case 'search':
                         if (isset($_GET['query'])) {
                             $query = $_GET['query'];
                             $results = searchEntries($query);
-
                             if ($results) {
                                 echo "<h2>Search Results</h2>";
                                 echo "<table>";
@@ -61,15 +59,12 @@ if (isset($_REQUEST['action'])) {
                         break;
                 }
             }
-
-
         case 'update':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $searchColumn = $_POST['search_column'];
                 $searchValue = $_POST['search_value'];
                 $updateColumn = $_POST['update_column'];
                 $updateValue = $_POST['update_value'];
-
                 // Prefix columns with table names to match allowed columns
                 if ($searchColumn === 'username') {
                     $searchColumn = 'registers_for.username';
@@ -78,14 +73,11 @@ if (isset($_REQUEST['action'])) {
                 } elseif ($searchColumn === 'website_name') {
                     $searchColumn = 'websites.website_name';
                 }
-
                 if ($updateColumn === 'comment') {
                     $updateColumn = 'registers_for.comment';
                 }
-
                 try {
                     $result = updateEntry($searchColumn, $searchValue, $updateColumn, $updateValue);
-
                     if ($result) {
                         echo "<p>Update successful.</p>";
                     } else {
@@ -96,7 +88,6 @@ if (isset($_REQUEST['action'])) {
                 }
             }
             break;
-
         case 'insert':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $firstName   = $_POST['first_name'];
@@ -117,19 +108,16 @@ if (isset($_REQUEST['action'])) {
                 }
             }
             break;
-
         case 'delete':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $deleteColumn = $_POST['delete_column'];
                 $deleteValue  = $_POST['delete_value'];
-
                 // Prefix columns with table names to match allowed columns
                 if ($deleteColumn === 'username') {
                     $deleteColumn = 'registers_for.username';
                 } elseif ($deleteColumn === 'email') {
                     $deleteColumn = 'users.email';
                 }
-
                 try {
                     $result = deleteEntry($deleteColumn, $deleteValue);
 
@@ -143,7 +131,6 @@ if (isset($_REQUEST['action'])) {
                 }
             }
             break;
-
         default:
             echo "<p>Invalid action.</p>";
             break;
@@ -158,7 +145,6 @@ if (isset($_REQUEST['action'])) {
         <link rel="stylesheet" type="text/css" href="css/style.css">
     </head>
     <body>
-
         <!-- Navigation Menu -->
         <nav>
             <div class="container">
@@ -169,19 +155,16 @@ if (isset($_REQUEST['action'])) {
                 <a href="?form=delete">Delete</a>
             </div>
         </nav>
-
         <div class="container">
             <!-- Display Forms Based on the 'form' Query Parameter -->
             <?php
             if (isset($_GET['form'])) {
                 $form = $_GET['form'];
-
                 switch ($form) {
                     case 'search':
                         if (isset($_GET['query'])) {
                             $query = $_GET['query'];
                             $results = searchEntries($query);
-
                             if ($results) {
                                 echo "<h2>Search Results</h2>";
                                 echo "<table>";
@@ -230,7 +213,6 @@ if (isset($_REQUEST['action'])) {
                         }
                         break;
 
-
                     case 'update':
                         ?>
                         <h2>Update an Entry</h2>
@@ -243,9 +225,7 @@ if (isset($_REQUEST['action'])) {
                                 <option value="website_url">Website URL</option>
                                 <option value="comment">Comment</option>
                             </select>
-
                             <input type="text" name="search_value" placeholder="Search Value" required>
-
                             <label for="update_column">Update Column:</label>
                             <select name="update_column" id="update_column" required>
                                 <option value="first_name">First Name</option>
@@ -257,9 +237,7 @@ if (isset($_REQUEST['action'])) {
                                 <option value="website_url">Website URL</option>
                                 <option value="comment">Comment</option>
                             </select>
-
                             <input type="text" name="update_value" placeholder="Update Value" required>
-
                             <button type="submit">Update</button>
                         </form>
                         <?php
@@ -328,7 +306,6 @@ if (isset($_REQUEST['action'])) {
                         <?php
                     }
                         break;
-
                     case 'delete':
                         ?>
                         <h2>Delete an Entry</h2>
@@ -338,6 +315,8 @@ if (isset($_REQUEST['action'])) {
                             <select name="delete_column" id="delete_column" required>
                                 <option value="username">Username</option>
                                 <option value="email">Email</option>
+                                <option value="website_name">Website Name</option>
+                                <option value="website_url">Website URL</option>
                             </select>
 
                             <input type="text" name="delete_value" placeholder="Value" required>
@@ -346,7 +325,6 @@ if (isset($_REQUEST['action'])) {
                         </form>
                         <?php
                         break;
-
                     default:
                         echo "<p>Invalid form.</p>";
                         break;
@@ -357,15 +335,12 @@ if (isset($_REQUEST['action'])) {
                 echo "<p>Select an action from the menu above.</p>";
             }
             ?>
-
             <!-- Refresh Button -->
             <a href="index.php" class="button-refresh">Refresh Page</a>
         </div>
-
         <!-- Footer -->
         <footer>
             &copy; <?php echo date("Y"); ?> Password Manager
         </footer>
-
     </body>
 </html>
